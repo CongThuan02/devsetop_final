@@ -20,8 +20,8 @@ class AuthRepository {
     required this.storage,
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance;
 
   final CryptoService crypto;
   final SecureStorageService storage;

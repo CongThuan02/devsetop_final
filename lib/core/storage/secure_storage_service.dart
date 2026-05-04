@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// — vì vậy bản web KHÔNG dùng class này cho dữ liệu nhạy cảm.
 class SecureStorageService {
   SecureStorageService([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
 

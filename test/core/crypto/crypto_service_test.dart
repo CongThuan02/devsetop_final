@@ -51,16 +51,19 @@ void main() {
     );
   });
 
-  test('two encryptions of same plaintext produce different ciphertext', () async {
-    final salt = crypto.generateSalt();
-    final key = await crypto.deriveKey(masterPassword: 'pw', salt: salt);
+  test(
+    'two encryptions of same plaintext produce different ciphertext',
+    () async {
+      final salt = crypto.generateSalt();
+      final key = await crypto.deriveKey(masterPassword: 'pw', salt: salt);
 
-    final a = await crypto.encrypt(plaintext: 'hello', key: key);
-    final b = await crypto.encrypt(plaintext: 'hello', key: key);
+      final a = await crypto.encrypt(plaintext: 'hello', key: key);
+      final b = await crypto.encrypt(plaintext: 'hello', key: key);
 
-    expect(a.nonce, isNot(equals(b.nonce)));
-    expect(a.ciphertext, isNot(equals(b.ciphertext)));
-  });
+      expect(a.nonce, isNot(equals(b.nonce)));
+      expect(a.ciphertext, isNot(equals(b.ciphertext)));
+    },
+  );
 
   test('salt is 16 bytes and reasonably random', () {
     final s1 = crypto.generateSalt();

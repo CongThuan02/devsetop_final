@@ -6,8 +6,9 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/vault_repository.dart';
 
 final cryptoServiceProvider = Provider<CryptoService>((_) => CryptoService());
-final secureStorageProvider =
-    Provider<SecureStorageService>((_) => SecureStorageService());
+final secureStorageProvider = Provider<SecureStorageService>(
+  (_) => SecureStorageService(),
+);
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
@@ -18,16 +19,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 /// Session sau khi unlock — chứa SecretKey trong RAM.
 /// Được set bởi login screen, clear bởi logout / auto-lock.
-class SessionNotifier extends Notifier<UnlockedSession?> {
-  @override
-  UnlockedSession? build() => null;
+class SessionNotifier extends StateNotifier<UnlockedSession?> {
+  SessionNotifier() : super(null);
 
   void set(UnlockedSession session) => state = session;
   void clear() => state = null;
 }
 
 final sessionProvider =
-    NotifierProvider<SessionNotifier, UnlockedSession?>(SessionNotifier.new);
+    StateNotifierProvider<SessionNotifier, UnlockedSession?>(
+      (_) => SessionNotifier(),
+    );
 
 final vaultRepositoryProvider = Provider<VaultRepository?>((ref) {
   final session = ref.watch(sessionProvider);

@@ -49,18 +49,39 @@ class VaultRepository {
       final data = doc.data();
       final payload = EncryptedPayload.fromFirestore(data);
       final clear = await crypto.decrypt(payload: payload, key: key);
-      final secret =
-          VaultItemSecret.fromJson(jsonDecode(clear) as Map<String, dynamic>);
-      results.add(VaultItem(
-        id: doc.id,
-        serviceName: data['serviceName'] as String,
-        url: data['url'] as String? ?? '',
-        username: secret.username,
-        password: secret.password,
-        note: secret.note,
-      ));
+      final secret = VaultItemSecret.fromJson(
+        jsonDecode(clear) as Map<String, dynamic>,
+      );
+      results.add(
+        VaultItem(
+          id: doc.id,
+          serviceName: data['serviceName'] as String,
+          url: data['url'] as String? ?? '',
+          username: secret.username,
+          password: secret.password,
+          note: secret.note,
+        ),
+      );
     }
     return results;
+  }
+
+  Future<void> updateItem({
+    required String id,
+    required String serviceName,
+    required String url,
+    required VaultItemSecret secret,
+  }) async {
+    final payload = await crypto.encrypt(
+      plaintext: jsonEncode(secret.toJson()),
+      key: key,
+    );
+    await _col.doc(id).update({
+      'serviceName': serviceName,
+      'url': url,
+      ...payload.toFirestore(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> deleteItem(String id) => _col.doc(id).delete();

@@ -30,14 +30,14 @@ class VaultItemSecret {
   final String note;
 
   Map<String, dynamic> toJson() => {
-        'username': username,
-        'password': password,
-        'note': note,
-      };
+    'username': username,
+    'password': password,
+    'note': note,
+  };
 
   factory VaultItemSecret.fromJson(Map<String, dynamic> j) => VaultItemSecret(
-        username: j['username'] as String? ?? '',
-        password: j['password'] as String? ?? '',
-        note: j['note'] as String? ?? '',
-      );
+    username: j['username'] as String? ?? '',
+    password: j['password'] as String? ?? '',
+    note: j['note'] as String? ?? '',
+  );
 }

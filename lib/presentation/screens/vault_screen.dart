@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/validation/validators.dart';
 import '../../domain/entities/vault_item.dart';
 import '../providers/app_providers.dart';
 import 'auth_screen.dart';
@@ -34,23 +35,68 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
     await ref.read(authRepositoryProvider).signOut();
     ref.read(sessionProvider.notifier).clear();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const AuthScreen()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const AuthScreen()));
   }
 
   Future<void> _addItem() async {
-    final added = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const _AddItemScreen()),
+    final ok = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const _ItemFormScreen()));
+    if (ok == true) setState(_reload);
+  }
+
+  Future<void> _editItem(VaultItem item) async {
+    final ok = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => _ItemFormScreen(existing: item)),
     );
-    if (added == true) setState(_reload);
+    if (ok == true) setState(_reload);
+  }
+
+  Future<void> _deleteItem(VaultItem item) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Xoá mật khẩu?'),
+            content: Text(
+              'Bạn có chắc muốn xoá "${item.serviceName}"? '
+              'Hành động này không thể hoàn tác.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Huỷ'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Xoá'),
+              ),
+            ],
+          ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(vaultRepositoryProvider)!.deleteItem(item.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã xoá.')));
+      setState(_reload);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vault'),
+        title: const Text('Kho mật khẩu'),
         actions: [
           IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],
@@ -75,7 +121,12 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
           return ListView.separated(
             itemCount: items.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (_, i) => _VaultTile(item: items[i]),
+            itemBuilder:
+                (_, i) => _VaultTile(
+                  item: items[i],
+                  onEdit: () => _editItem(items[i]),
+                  onDelete: () => _deleteItem(items[i]),
+                ),
           );
         },
       ),
@@ -83,19 +134,44 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
   }
 }
 
-class _VaultTile extends StatelessWidget {
-  const _VaultTile({required this.item});
+class _VaultTile extends StatefulWidget {
+  const _VaultTile({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
   final VaultItem item;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  Future<void> _copy(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: item.password));
-    if (!context.mounted) return;
+  @override
+  State<_VaultTile> createState() => _VaultTileState();
+}
+
+class _VaultTileState extends State<_VaultTile> {
+  bool _revealed = false;
+
+  Future<void> _copy(
+    String label,
+    String value, {
+    bool autoClear = false,
+  }) async {
+    await Clipboard.setData(ClipboardData(text: value));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã copy. Tự xoá sau 30 giây.')),
+      SnackBar(
+        content: Text(
+          autoClear
+              ? 'Đã sao chép $label. Tự xoá sau 30 giây.'
+              : 'Đã sao chép $label.',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
     );
+    if (!autoClear) return;
     Timer(const Duration(seconds: 30), () async {
       final cur = await Clipboard.getData('text/plain');
-      if (cur?.text == item.password) {
+      if (cur?.text == value) {
         await Clipboard.setData(const ClipboardData(text: ''));
       }
     });
@@ -103,30 +179,141 @@ class _VaultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    final item = widget.item;
+    return ExpansionTile(
+      leading: const Icon(Icons.lock_outline),
       title: Text(item.serviceName),
-      subtitle: Text(item.username),
-      trailing: IconButton(
-        icon: const Icon(Icons.copy),
-        onPressed: () => _copy(context),
+      subtitle: Text(
+        item.username,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      children: [
+        if (item.url.isNotEmpty)
+          _Field(
+            label: 'URL',
+            value: item.url,
+            onCopy: () => _copy('URL', item.url),
+          ),
+        _Field(
+          label: 'Tên đăng nhập',
+          value: item.username,
+          onCopy: () => _copy('tên đăng nhập', item.username),
+        ),
+        _Field(
+          label: 'Mật khẩu',
+          value: _revealed ? item.password : '•' * item.password.length,
+          onCopy: () => _copy('mật khẩu', item.password, autoClear: true),
+          trailing: IconButton(
+            icon: Icon(_revealed ? Icons.visibility_off : Icons.visibility),
+            tooltip: _revealed ? 'Ẩn' : 'Hiện',
+            onPressed: () => setState(() => _revealed = !_revealed),
+          ),
+        ),
+        if (item.note.isNotEmpty)
+          _Field(
+            label: 'Ghi chú',
+            value: item.note,
+            onCopy: () => _copy('ghi chú', item.note),
+          ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton.icon(
+              icon: const Icon(Icons.edit_outlined),
+              label: const Text('Sửa'),
+              onPressed: widget.onEdit,
+            ),
+            const SizedBox(width: 8),
+            TextButton.icon(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              label: const Text('Xoá', style: TextStyle(color: Colors.red)),
+              onPressed: widget.onDelete,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Field extends StatelessWidget {
+  const _Field({
+    required this.label,
+    required this.value,
+    required this.onCopy,
+    this.trailing,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onCopy;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: Theme.of(context).textTheme.labelSmall),
+                Text(
+                  value,
+                  style: const TextStyle(fontFamily: 'monospace'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+          IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: 'Sao chép $label',
+            onPressed: onCopy,
+          ),
+        ],
       ),
     );
   }
 }
 
-class _AddItemScreen extends ConsumerStatefulWidget {
-  const _AddItemScreen();
+class _ItemFormScreen extends ConsumerStatefulWidget {
+  const _ItemFormScreen({this.existing});
+  final VaultItem? existing;
 
   @override
-  ConsumerState<_AddItemScreen> createState() => _AddItemScreenState();
+  ConsumerState<_ItemFormScreen> createState() => _ItemFormScreenState();
 }
 
-class _AddItemScreenState extends ConsumerState<_AddItemScreen> {
-  final _service = TextEditingController();
-  final _url = TextEditingController();
-  final _username = TextEditingController();
-  final _password = TextEditingController();
+class _ItemFormScreenState extends ConsumerState<_ItemFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _service;
+  late final TextEditingController _url;
+  late final TextEditingController _username;
+  late final TextEditingController _password;
+  late final TextEditingController _note;
   bool _busy = false;
+  bool _obscure = true;
+
+  bool get _isEdit => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final e = widget.existing;
+    _service = TextEditingController(text: e?.serviceName ?? '');
+    _url = TextEditingController(text: e?.url ?? '');
+    _username = TextEditingController(text: e?.username ?? '');
+    _password = TextEditingController(text: e?.password ?? '');
+    _note = TextEditingController(text: e?.note ?? '');
+  }
 
   @override
   void dispose() {
@@ -134,6 +321,7 @@ class _AddItemScreenState extends ConsumerState<_AddItemScreen> {
     _url.dispose();
     _username.dispose();
     _password.dispose();
+    _note.dispose();
     super.dispose();
   }
 
@@ -146,24 +334,37 @@ class _AddItemScreenState extends ConsumerState<_AddItemScreen> {
   }
 
   Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _busy = true);
     try {
       final repo = ref.read(vaultRepositoryProvider);
       if (repo == null) return;
-      await repo.addItem(
-        serviceName: _service.text.trim(),
-        url: _url.text.trim(),
-        secret: VaultItemSecret(
-          username: _username.text.trim(),
-          password: _password.text,
-        ),
+      final secret = VaultItemSecret(
+        username: _username.text.trim(),
+        password: _password.text,
+        note: _note.text,
       );
+      if (_isEdit) {
+        await repo.updateItem(
+          id: widget.existing!.id,
+          serviceName: _service.text.trim(),
+          url: _url.text.trim(),
+          secret: secret,
+        );
+      } else {
+        await repo.addItem(
+          serviceName: _service.text.trim(),
+          url: _url.text.trim(),
+          secret: secret,
+        );
+      }
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -172,41 +373,103 @@ class _AddItemScreenState extends ConsumerState<_AddItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Thêm mật khẩu')),
-      body: Padding(
+      appBar: AppBar(title: Text(_isEdit ? 'Sửa mật khẩu' : 'Thêm mật khẩu')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _service,
-              decoration: const InputDecoration(labelText: 'Tên dịch vụ'),
-            ),
-            TextField(
-              controller: _url,
-              decoration: const InputDecoration(labelText: 'URL'),
-            ),
-            TextField(
-              controller: _username,
-              decoration: const InputDecoration(labelText: 'Username / Email'),
-            ),
-            Row(children: [
-              Expanded(
-                child: TextField(
-                  controller: _password,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _service,
+                decoration: const InputDecoration(
+                  labelText: 'Tên dịch vụ *',
+                  prefixIcon: Icon(Icons.label_outline),
                 ),
+                validator: Validators.serviceName,
               ),
-              IconButton(
-                  onPressed: _generate, icon: const Icon(Icons.casino)),
-            ]),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _busy ? null : _save,
-              child: const Text('Lưu (mã hoá rồi đẩy lên Firestore)'),
-            ),
-          ],
+              TextFormField(
+                controller: _url,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: 'Địa chỉ web (tuỳ chọn)',
+                  prefixIcon: Icon(Icons.link),
+                  hintText: 'https://...',
+                ),
+                validator: Validators.optionalUrl,
+              ),
+              TextFormField(
+                controller: _username,
+                decoration: const InputDecoration(
+                  labelText: 'Tên đăng nhập / Thư điện tử *',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator:
+                    (v) => Validators.required(v, label: 'Tên đăng nhập'),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _password,
+                      obscureText: _obscure,
+                      decoration: const InputDecoration(
+                        labelText: 'Mật khẩu *',
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                      validator: Validators.vaultPassword,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: _obscure ? 'Hiện' : 'Ẩn',
+                    icon: Icon(
+                      _obscure ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                  ),
+                  IconButton(
+                    tooltip: 'Tạo ngẫu nhiên',
+                    onPressed: _generate,
+                    icon: const Icon(Icons.casino),
+                  ),
+                ],
+              ),
+              TextFormField(
+                controller: _note,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: const InputDecoration(
+                  labelText: 'Ghi chú (tuỳ chọn)',
+                  prefixIcon: Icon(Icons.notes),
+                ),
+                validator:
+                    (v) => Validators.maxLength(v, 500, label: 'Ghi chú'),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '* là trường bắt buộc',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: _busy ? null : _save,
+                child:
+                    _busy
+                        ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : Text(
+                          _isEdit
+                              ? 'Cập nhật (mã hoá rồi tải lên máy chủ)'
+                              : 'Lưu (mã hoá rồi tải lên máy chủ)',
+                        ),
+              ),
+            ],
+          ),
         ),
       ),
     );
