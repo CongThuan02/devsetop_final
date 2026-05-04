@@ -47,10 +47,9 @@ app.*.map.json
 # Firebase / secrets — TUYỆT ĐỐI KHÔNG COMMIT
 **/google-services.json
 **/GoogleService-Info.plist
-firebase_options.dart
-.firebaserc
 .env
 .env.*
+!.env.example
 *.keystore
 *.jks
 key.properties

@@ -10,6 +10,7 @@ jobs:
   flutter:
     name: Lint, Test, Build
     runs-on: ubuntu-latest
+    environment: devsecop
     steps:
       - uses: actions/checkout@v4
 
@@ -18,6 +19,19 @@ jobs:
           flutter-version: '3.41.6'
           channel: stable
           cache: true
+
+      - name: Materialize .env from GitHub Secrets
+        run: |
+          cat > .env <<EOF
+          FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_WEB_API_KEY=${{ secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_WEB_APP_ID=${{ secrets.FIREBASE_WEB_APP_ID }}
+          FIREBASE_ANDROID_API_KEY=${{ secrets.FIREBASE_ANDROID_API_KEY }}
+          FIREBASE_ANDROID_APP_ID=${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          EOF
 
       - name: Install dependencies
         run: flutter pub get
