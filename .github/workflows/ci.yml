@@ -8,7 +8,7 @@ on:
 
 jobs:
   flutter:
-    name: Lint, Test, Build
+    name: Lint, Test, Build Web
     runs-on: ubuntu-latest
     environment: devsecop
     steps:
@@ -48,19 +48,9 @@ jobs:
       - name: Build web (release)
         run: flutter build web --release
 
-      - name: Build APK (release, unsigned)
-        run: flutter build apk --release
-
       - name: Upload web bundle
         uses: actions/upload-artifact@v4
         with:
           name: web-build
           path: build/web
-          retention-days: 7
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release.apk
-          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
