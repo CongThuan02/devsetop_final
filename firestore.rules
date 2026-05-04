@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users chỉ truy cập subcollection vault của chính mình.
+    // Tài liệu chỉ chứa ciphertext + metadata không nhạy cảm — server không bao giờ thấy plaintext.
+    match /users/{userId}/vault/{itemId} {
+      allow read, delete: if isOwner(userId);
+      allow create: if isOwner(userId)
+                    && isValidVaultItem(request.resource.data);
+      allow update: if isOwner(userId)
+                    && isValidVaultItem(request.resource.data)
+                    && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    // Profile cơ bản (salt PBKDF2, kdf params). KHÔNG chứa master password.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidProfile(request.resource.data);
+      allow delete: if false; // chỉ xoá qua admin SDK
+    }
+
+    // Mặc định: chặn mọi thứ khác.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isValidVaultItem(d) {
+      return d.keys().hasOnly(['serviceName', 'url', 'ciphertext', 'nonce', 'mac', 'createdAt', 'updatedAt'])
+          && d.serviceName is string && d.serviceName.size() > 0 && d.serviceName.size() <= 100
+          && d.ciphertext is string && d.ciphertext.size() <= 8192
+          && d.nonce is string && d.nonce.size() <= 32
+          && d.mac is string && d.mac.size() <= 32;
+    }
+
+    function isValidProfile(d) {
+      return d.keys().hasOnly(['salt', 'kdfIterations', 'createdAt'])
+          && d.salt is string
+          && d.kdfIterations is int
+          && d.kdfIterations >= 100000;
+    }
+  }
+}
