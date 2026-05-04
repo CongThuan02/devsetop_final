@@ -19,10 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # CodeQL không hỗ trợ Dart. Quét Kotlin (Android wrapper) + Actions.
+        # CodeQL không hỗ trợ Dart, nên SAST cho Dart code do `flutter analyze`
+        # và Semgrep phụ trách (xem security.yml). CodeQL ở đây quét GitHub
+        # Actions workflows để phát hiện script injection / unsafe expressions.
+        # File Kotlin của Android chỉ là 5 dòng wrapper FlutterActivity, không
+        # chứa business logic nên không scan.
         include:
-          - language: java-kotlin
-            build-mode: none
           - language: actions
             build-mode: none
     steps:
