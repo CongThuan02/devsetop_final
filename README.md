@@ -6,15 +6,18 @@ A new Flutter project.
 
 Project dung FVM va pin Flutter version trong `.fvmrc`. Workflow `.github/workflows/deploy.yml` se tu dong cai FVM, cai dung Flutter version, build Flutter web va deploy len Firebase Hosting khi co code duoc push len nhanh `main`.
 
-Truoc khi push, tao cac GitHub Secrets trong repo:
+Truoc khi push, tao cac GitHub Variables trong repo tu cac gia tri Firebase client config:
 
 - `FIREBASE_PROJECT_ID`: Firebase project ID, vi du `pwmgr-devsecops`
-- `FIREBASE_SERVICE_ACCOUNT`: noi dung JSON cua service account co quyen deploy Firebase Hosting
 - `FIREBASE_MESSAGING_SENDER_ID`
 - `FIREBASE_AUTH_DOMAIN`
 - `FIREBASE_STORAGE_BUCKET`
 - `FIREBASE_WEB_API_KEY`
 - `FIREBASE_WEB_APP_ID`
+
+Sau do tao GitHub Secret:
+
+- `FIREBASE_SERVICE_ACCOUNT`: noi dung JSON cua service account co quyen deploy Firebase Hosting
 
 Service account nen co quyen `Firebase Hosting Admin` tren Firebase/GCP project. Sau khi merge hoac push len `main`, vao tab `Actions` cua GitHub va mo workflow `Deploy Web to Firebase` de xem log deploy.
 
