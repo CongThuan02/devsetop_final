@@ -10,7 +10,6 @@ jobs:
   flutter:
     name: Lint, Test, Build Web
     runs-on: ubuntu-latest
-    environment: devsecop
     steps:
       - uses: actions/checkout@v4
 

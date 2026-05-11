@@ -24,9 +24,11 @@ class DefaultFirebaseOptions {
   static const _messagingSenderId = "171197120";
   static const _authDomain = "pwmgr-devsecops.firebaseapp.com";
   static const _storageBucket = "pwmgr-devsecops.firebasestorage.app";
-  static const _webApiKey = "AIzaSyB0jvbkl_mwzebrCL9E3UfFIBkr-zll0yg";
+  static const _webApiKey =
+      "AIzaSyB0jvbkl_mwzebrCL9E3UfFIBkr-zll0yg"; // gitleaks:allow
   static const _webAppId = "1:171197120:web:77456ef93a56f55cb1a325";
-  static const _androidApiKey = "AIzaSyDj3NCu4YNHiO0kMkG7NngmHRuL0p8bP3A";
+  static const _androidApiKey =
+      "AIzaSyDj3NCu4YNHiO0kMkG7NngmHRuL0p8bP3A"; // gitleaks:allow
   static const _androidAppId = "1:171197120:android:920dc070a544fef0b1a325";
 
   static const FirebaseOptions _web = FirebaseOptions(
