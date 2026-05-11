@@ -12,6 +12,7 @@ jobs:
   deploy:
     name: Build Flutter Web & Deploy Live
     runs-on: ubuntu-latest
+    environment: devsecop
     permissions:
       contents: read
 
@@ -39,10 +40,10 @@ jobs:
 
       - name: Check Firebase deploy credentials
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_PWMGR_DEVSECOPS }}
         run: |
           if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "::error::FIREBASE_SERVICE_ACCOUNT is not set in GitHub Secrets"
+            echo "::error::FIREBASE_SERVICE_ACCOUNT or FIREBASE_SERVICE_ACCOUNT_PWMGR_DEVSECOPS is not set in GitHub Secrets"
             exit 1
           fi
 
@@ -53,6 +54,6 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_PWMGR_DEVSECOPS }}
           projectId: pwmgr-devsecops
           channelId: live

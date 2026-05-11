@@ -6,9 +6,10 @@ A new Flutter project.
 
 Project dung FVM va pin Flutter version trong `.fvmrc`. Workflow `.github/workflows/deploy.yml` se tu dong cai FVM, cai dung Flutter version, build Flutter web va deploy len Firebase Hosting khi co code duoc push len nhanh `main`.
 
-Truoc khi push, tao GitHub Secret trong repo:
+Truoc khi push, tao mot trong hai GitHub Secrets trong repo:
 
 - `FIREBASE_SERVICE_ACCOUNT`: noi dung JSON cua service account co quyen deploy Firebase Hosting
+- `FIREBASE_SERVICE_ACCOUNT_PWMGR_DEVSECOPS`: ten secret Firebase CLI thuong tao khi chay `firebase init hosting:github`
 
 Firebase client config da nam trong `lib/firebase_options.dart`, nen workflow khong can GitHub Variables cho `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_WEB_APP_ID`, ... nua. Service account nen co quyen `Firebase Hosting Admin` tren Firebase/GCP project. Sau khi merge hoac push len `main`, vao tab `Actions` cua GitHub va mo workflow `Deploy Web to Firebase` de xem log deploy.
 
