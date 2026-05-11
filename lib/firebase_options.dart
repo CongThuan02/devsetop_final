@@ -1,6 +1,7 @@
 // Firebase client configuration.
 //
-// LƯU Ý BẢO MẬT: Firebase API keys là client identifiers — bảo mật thực sự
+// Cấu hình được truyền qua --dart-define khi build.
+// Firebase API keys là client identifiers — bảo mật thực sự
 // nằm ở Firestore Rules + App Check, KHÔNG ở việc giấu key.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
@@ -19,20 +20,37 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const _projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
+  static const _messagingSenderId = String.fromEnvironment(
+    'FIREBASE_MESSAGING_SENDER_ID',
+  );
+  static const _authDomain = String.fromEnvironment('FIREBASE_AUTH_DOMAIN');
+  static const _storageBucket = String.fromEnvironment(
+    'FIREBASE_STORAGE_BUCKET',
+  );
+  static const _webApiKey = String.fromEnvironment('FIREBASE_WEB_API_KEY');
+  static const _webAppId = String.fromEnvironment('FIREBASE_WEB_APP_ID');
+  static const _androidApiKey = String.fromEnvironment(
+    'FIREBASE_ANDROID_API_KEY',
+  );
+  static const _androidAppId = String.fromEnvironment(
+    'FIREBASE_ANDROID_APP_ID',
+  );
+
   static const FirebaseOptions _web = FirebaseOptions(
-    apiKey: 'AIzaSyB0jvbkl_mwzebrCL9E3UfFIBkr-zll0yg',
-    appId: '1:171197120:web:77456ef93a56f55cb1a325',
-    messagingSenderId: '171197120',
-    projectId: 'pwmgr-devsecops',
-    authDomain: 'pwmgr-devsecops.firebaseapp.com',
-    storageBucket: 'pwmgr-devsecops.firebasestorage.app',
+    apiKey: _webApiKey,
+    appId: _webAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    authDomain: _authDomain,
+    storageBucket: _storageBucket,
   );
 
   static const FirebaseOptions _android = FirebaseOptions(
-    apiKey: 'AIzaSyDj3NCu4YNHiO0kMkG7NngmHRuL0p8bP3A',
-    appId: '1:171197120:android:920dc070a544fef0b1a325',
-    messagingSenderId: '171197120',
-    projectId: 'pwmgr-devsecops',
-    storageBucket: 'pwmgr-devsecops.firebasestorage.app',
+    apiKey: _androidApiKey,
+    appId: _androidAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    storageBucket: _storageBucket,
   );
 }
