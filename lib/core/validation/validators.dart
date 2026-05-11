@@ -18,23 +18,11 @@ class Validators {
     return null;
   }
 
-  /// Mật khẩu chính (master password) — yêu cầu mạnh hơn.
+  /// Mật khẩu chính (master password) — tối thiểu 6 ký tự.
   static String? masterPassword(String? v) {
     final t = v ?? '';
     if (t.isEmpty) return 'Mật khẩu không được để trống.';
-    if (t.length < 12) return 'Mật khẩu phải có ít nhất 12 ký tự.';
-    if (!RegExp(r'[A-Z]').hasMatch(t)) {
-      return 'Mật khẩu phải có ít nhất 1 chữ hoa.';
-    }
-    if (!RegExp(r'[a-z]').hasMatch(t)) {
-      return 'Mật khẩu phải có ít nhất 1 chữ thường.';
-    }
-    if (!RegExp(r'[0-9]').hasMatch(t)) {
-      return 'Mật khẩu phải có ít nhất 1 chữ số.';
-    }
-    if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(t)) {
-      return 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt.';
-    }
+    if (t.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự.';
     return null;
   }
 

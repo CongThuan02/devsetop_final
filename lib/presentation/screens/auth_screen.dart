@@ -111,10 +111,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 controller: _password,
                 obscureText: _obscure,
                 decoration: InputDecoration(
-                  labelText:
-                      _isRegister
-                          ? 'Mật khẩu (≥12 ký tự, có hoa/thường/số/đặc biệt)'
-                          : 'Mật khẩu',
+                  labelText: _isRegister ? 'Mật khẩu (≥6 ký tự)' : 'Mật khẩu',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
