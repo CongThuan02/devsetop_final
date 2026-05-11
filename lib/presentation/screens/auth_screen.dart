@@ -87,7 +87,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isRegister ? 'Đăng kýs' : 'Đăng nhậps')),
+      appBar: AppBar(title: Text(_isRegister ? 'Đăng ký' : 'Đăng nhập')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
