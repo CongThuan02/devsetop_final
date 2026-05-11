@@ -8,7 +8,12 @@ import 'presentation/screens/auth_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    // Web release builds can receive Firebase config through --dart-define,
+    // so the .env asset is optional at runtime.
+  }
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: PwMgrApp()));
 }

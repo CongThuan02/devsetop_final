@@ -24,10 +24,12 @@ class DefaultFirebaseOptions {
   }
 
   static String _need(String key) {
-    final v = dotenv.maybeGet(key);
+    final dartDefineValue = String.fromEnvironment(key);
+    final v =
+        dartDefineValue.isNotEmpty ? dartDefineValue : dotenv.maybeGet(key);
     if (v == null || v.isEmpty) {
       throw StateError(
-        'Thiếu biến $key trong .env. Tạo file .env từ .env.example.',
+        'Thiếu biến $key. Truyền bằng --dart-define hoặc tạo file .env từ .env.example.',
       );
     }
     return v;
