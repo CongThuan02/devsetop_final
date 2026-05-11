@@ -101,7 +101,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
                 decoration: const InputDecoration(
-                  labelText: 'Thư điện tử',
+                  labelText: 'Tài khoản',
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
                 validator: Validators.email,
