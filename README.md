@@ -2,6 +2,22 @@
 
 A new Flutter project.
 
+## Deploy web len Firebase Hosting
+
+Workflow `.github/workflows/deploy.yml` se tu dong build Flutter web va deploy len Firebase Hosting khi co code duoc push len nhanh `main`.
+
+Truoc khi push, tao cac GitHub Secrets trong repo:
+
+- `FIREBASE_PROJECT_ID`: Firebase project ID, vi du `pwmgr-devsecops`
+- `FIREBASE_SERVICE_ACCOUNT`: noi dung JSON cua service account co quyen deploy Firebase Hosting
+- `FIREBASE_MESSAGING_SENDER_ID`
+- `FIREBASE_AUTH_DOMAIN`
+- `FIREBASE_STORAGE_BUCKET`
+- `FIREBASE_WEB_API_KEY`
+- `FIREBASE_WEB_APP_ID`
+
+Service account nen co quyen `Firebase Hosting Admin` tren Firebase/GCP project. Sau khi merge hoac push len `main`, vao tab `Actions` cua GitHub va mo workflow `Deploy Web to Firebase` de xem log deploy.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

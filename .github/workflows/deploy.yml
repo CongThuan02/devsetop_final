@@ -1,30 +1,58 @@
-name: Deploy Web
+name: Deploy Web to Firebase
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+
+concurrency:
+  group: firebase-hosting-live
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    name: Build & Deploy to Firebase Hosting
+    name: Build Flutter Web & Deploy Live
     runs-on: ubuntu-latest
-    environment: devsecop
     permissions:
       contents: read
-      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.6'
+          flutter-version: '3.29.0'
           channel: stable
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Check required secrets
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_WEB_APP_ID: ${{ secrets.FIREBASE_WEB_APP_ID }}
+        run: |
+          missing=0
+          for name in \
+            FIREBASE_PROJECT_ID \
+            FIREBASE_SERVICE_ACCOUNT \
+            FIREBASE_MESSAGING_SENDER_ID \
+            FIREBASE_AUTH_DOMAIN \
+            FIREBASE_STORAGE_BUCKET \
+            FIREBASE_WEB_API_KEY \
+            FIREBASE_WEB_APP_ID
+          do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not set in GitHub Secrets"
+              missing=1
+            fi
+          done
+          exit "$missing"
 
       - name: Build web (release)
         run: >
@@ -35,22 +63,8 @@ jobs:
           --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
           --dart-define=FIREBASE_WEB_API_KEY=${{ secrets.FIREBASE_WEB_API_KEY }}
           --dart-define=FIREBASE_WEB_APP_ID=${{ secrets.FIREBASE_WEB_APP_ID }}
-          --dart-define=FIREBASE_ANDROID_API_KEY=${{ secrets.FIREBASE_ANDROID_API_KEY }}
-          --dart-define=FIREBASE_ANDROID_APP_ID=${{ secrets.FIREBASE_ANDROID_APP_ID }}
 
-      # Deploy preview channel cho PR (URL tạm 7 ngày)
-      - name: Deploy preview (PR)
-        if: github.event_name == 'pull_request'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
-          expires: 7d
-
-      # Deploy live khi merge vào main
       - name: Deploy live (main)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
