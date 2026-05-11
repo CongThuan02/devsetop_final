@@ -1,6 +1,6 @@
 // Firebase client configuration.
 //
-// Cấu hình được truyền qua --dart-define khi build.
+// Cấu hình client được commit trực tiếp để CI/CD không cần truyền --dart-define.
 // Firebase API keys là client identifiers — bảo mật thực sự
 // nằm ở Firestore Rules + App Check, KHÔNG ở việc giấu key.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
@@ -20,22 +20,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const _projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
-  static const _messagingSenderId = String.fromEnvironment(
-    'FIREBASE_MESSAGING_SENDER_ID',
-  );
-  static const _authDomain = String.fromEnvironment('FIREBASE_AUTH_DOMAIN');
-  static const _storageBucket = String.fromEnvironment(
-    'FIREBASE_STORAGE_BUCKET',
-  );
-  static const _webApiKey = String.fromEnvironment('FIREBASE_WEB_API_KEY');
-  static const _webAppId = String.fromEnvironment('FIREBASE_WEB_APP_ID');
-  static const _androidApiKey = String.fromEnvironment(
-    'FIREBASE_ANDROID_API_KEY',
-  );
-  static const _androidAppId = String.fromEnvironment(
-    'FIREBASE_ANDROID_APP_ID',
-  );
+  static const _projectId = "pwmgr-devsecops";
+  static const _messagingSenderId = "171197120";
+  static const _authDomain = "pwmgr-devsecops.firebaseapp.com";
+  static const _storageBucket = "pwmgr-devsecops.firebasestorage.app";
+  static const _webApiKey = "AIzaSyB0jvbkl_mwzebrCL9E3UfFIBkr-zll0yg";
+  static const _webAppId = "1:171197120:web:77456ef93a56f55cb1a325";
+  static const _androidApiKey = "AIzaSyDj3NCu4YNHiO0kMkG7NngmHRuL0p8bP3A";
+  static const _androidAppId = "1:171197120:android:920dc070a544fef0b1a325";
 
   static const FirebaseOptions _web = FirebaseOptions(
     apiKey: _webApiKey,
