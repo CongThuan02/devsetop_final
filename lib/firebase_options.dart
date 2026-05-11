@@ -11,6 +11,25 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DefaultFirebaseOptions {
+  static const _dartDefineValues = {
+    'FIREBASE_PROJECT_ID': String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    'FIREBASE_MESSAGING_SENDER_ID': String.fromEnvironment(
+      'FIREBASE_MESSAGING_SENDER_ID',
+    ),
+    'FIREBASE_AUTH_DOMAIN': String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
+    'FIREBASE_STORAGE_BUCKET': String.fromEnvironment(
+      'FIREBASE_STORAGE_BUCKET',
+    ),
+    'FIREBASE_WEB_API_KEY': String.fromEnvironment('FIREBASE_WEB_API_KEY'),
+    'FIREBASE_WEB_APP_ID': String.fromEnvironment('FIREBASE_WEB_APP_ID'),
+    'FIREBASE_ANDROID_API_KEY': String.fromEnvironment(
+      'FIREBASE_ANDROID_API_KEY',
+    ),
+    'FIREBASE_ANDROID_APP_ID': String.fromEnvironment(
+      'FIREBASE_ANDROID_APP_ID',
+    ),
+  };
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) return _web;
     switch (defaultTargetPlatform) {
@@ -24,7 +43,7 @@ class DefaultFirebaseOptions {
   }
 
   static String _need(String key) {
-    final dartDefineValue = String.fromEnvironment(key);
+    final dartDefineValue = _dartDefineValues[key] ?? '';
     final v =
         dartDefineValue.isNotEmpty ? dartDefineValue : dotenv.maybeGet(key);
     if (v == null || v.isEmpty) {
