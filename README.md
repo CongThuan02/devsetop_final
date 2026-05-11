@@ -4,7 +4,7 @@ A new Flutter project.
 
 ## Deploy web len Firebase Hosting
 
-Workflow `.github/workflows/deploy.yml` se tu dong build Flutter web va deploy len Firebase Hosting khi co code duoc push len nhanh `main`.
+Project dung FVM va pin Flutter version trong `.fvmrc`. Workflow `.github/workflows/deploy.yml` se tu dong cai FVM, cai dung Flutter version, build Flutter web va deploy len Firebase Hosting khi co code duoc push len nhanh `main`.
 
 Truoc khi push, tao cac GitHub Secrets trong repo:
 

@@ -14,26 +14,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: dart-lang/setup-dart@v1
         with:
-          flutter-version: '3.41.6'
-          channel: stable
-          cache: true
+          sdk: stable
+
+      - name: Install FVM
+        run: dart pub global activate fvm
+
+      - name: Add pub cache to PATH
+        run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install Flutter from FVM config
+        run: fvm install
+
+      - name: Show Flutter version
+        run: fvm flutter --version
 
       - name: Install dependencies
-        run: flutter pub get
+        run: fvm flutter pub get
 
       - name: Verify formatting
-        run: dart format --set-exit-if-changed .
+        run: fvm dart format --set-exit-if-changed .
 
       - name: Static analysis
-        run: flutter analyze
+        run: fvm flutter analyze
 
       - name: Unit tests
-        run: flutter test --coverage
+        run: fvm flutter test --coverage
 
       - name: Build web (release)
-        run: flutter build web --release
+        run: fvm flutter build web --release
 
       - name: Upload web bundle
         uses: actions/upload-artifact@v4
