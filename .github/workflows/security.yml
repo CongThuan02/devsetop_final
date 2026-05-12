@@ -22,7 +22,7 @@ jobs:
 
   sca:
     name: OSV-Scanner (SCA)
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.3
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
     permissions:
       actions: read
       contents: read
