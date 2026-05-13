@@ -55,7 +55,9 @@ app.*.map.json
 key.properties
 
 # fvm
-.fvm/flutter_sdk
 
 # Coverage
 coverage/
+
+# FVM Version Cache
+.fvm/

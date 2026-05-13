@@ -94,41 +94,108 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kho mật khẩu'),
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [scheme.primary, scheme.tertiary],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.shield_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('Kho mật khẩu'),
+          ],
+        ),
         actions: [
-          IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
+            tooltip: 'Đăng xuất',
+          ),
+          const SizedBox(width: 8),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _addItem,
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Thêm mật khẩu'),
       ),
-      body: FutureBuilder<List<VaultItem>>(
-        future: _itemsFuture,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snap.hasError) {
-            return Center(child: Text('Lỗi: ${snap.error}'));
-          }
-          final items = snap.data ?? [];
-          if (items.isEmpty) {
-            return const Center(child: Text('Chưa có mật khẩu nào.'));
-          }
-          return ListView.separated(
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder:
-                (_, i) => _VaultTile(
-                  item: items[i],
-                  onEdit: () => _editItem(items[i]),
-                  onDelete: () => _deleteItem(items[i]),
-                ),
-          );
-        },
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: FutureBuilder<List<VaultItem>>(
+            future: _itemsFuture,
+            builder: (context, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snap.hasError) {
+                return Center(child: Text('Lỗi: ${snap.error}'));
+              }
+              final items = snap.data ?? [];
+              if (items.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          size: 64,
+                          color: scheme.onSurfaceVariant.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Chưa có mật khẩu nào',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Nhấn "Thêm mật khẩu" để bắt đầu',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder:
+                    (_, i) => Card(
+                      margin: EdgeInsets.zero,
+                      child: _VaultTile(
+                        item: items[i],
+                        onEdit: () => _editItem(items[i]),
+                        onDelete: () => _deleteItem(items[i]),
+                      ),
+                    ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -180,13 +247,39 @@ class _VaultTileState extends State<_VaultTile> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
+    final scheme = Theme.of(context).colorScheme;
+    final initial = item.serviceName.isEmpty
+        ? '?'
+        : item.serviceName.characters.first.toUpperCase();
     return ExpansionTile(
-      leading: const Icon(Icons.lock_outline),
-      title: Text(item.serviceName),
+      shape: const Border(),
+      collapsedShape: const Border(),
+      tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: scheme.primaryContainer,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          initial,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: scheme.onPrimaryContainer,
+          ),
+        ),
+      ),
+      title: Text(
+        item.serviceName,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: Text(
         item.username,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: scheme.onSurfaceVariant),
       ),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       children: [
@@ -374,9 +467,15 @@ class _ItemFormScreenState extends ConsumerState<_ItemFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'Sửa mật khẩu' : 'Thêm mật khẩu')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
@@ -469,6 +568,10 @@ class _ItemFormScreenState extends ConsumerState<_ItemFormScreen> {
                         ),
               ),
             ],
+          ),
+        ),
+              ),
+            ),
           ),
         ),
       ),

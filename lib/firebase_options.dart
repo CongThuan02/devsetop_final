@@ -13,6 +13,8 @@ class DefaultFirebaseOptions {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return _android;
+      case TargetPlatform.iOS:
+        return _ios;
       default:
         throw UnsupportedError(
           'Nền tảng ${defaultTargetPlatform.name} chưa được hỗ trợ.',
@@ -30,6 +32,10 @@ class DefaultFirebaseOptions {
   static const _androidApiKey =
       "AIzaSyDj3NCu4YNHiO0kMkG7NngmHRuL0p8bP3A"; // gitleaks:allow
   static const _androidAppId = "1:171197120:android:920dc070a544fef0b1a325";
+  static const _iosApiKey =
+      "AIzaSyDfZfCq528oSVRCFEj131380BYouzO1Kes"; // gitleaks:allow
+  static const _iosAppId = "1:171197120:ios:fcd5af0441cf4b08b1a325";
+  static const _iosBundleId = "com.example.passwordManagerMini";
 
   static const FirebaseOptions _web = FirebaseOptions(
     apiKey: _webApiKey,
@@ -46,5 +52,14 @@ class DefaultFirebaseOptions {
     messagingSenderId: _messagingSenderId,
     projectId: _projectId,
     storageBucket: _storageBucket,
+  );
+
+  static const FirebaseOptions _ios = FirebaseOptions(
+    apiKey: _iosApiKey,
+    appId: _iosAppId,
+    messagingSenderId: _messagingSenderId,
+    projectId: _projectId,
+    storageBucket: _storageBucket,
+    iosBundleId: _iosBundleId,
   );
 }
