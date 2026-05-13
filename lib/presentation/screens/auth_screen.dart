@@ -143,7 +143,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            _isRegister ? 'Tạo tài khoản mới' : 'Chào mừng trở lại',
+                            _isRegister
+                                ? 'Tạo tài khoản mới'
+                                : 'Chào mừng trở lại',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 24,
@@ -179,7 +181,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             obscureText: _obscure,
                             decoration: InputDecoration(
                               labelText:
-                                  _isRegister ? 'Mật khẩu (≥6 ký tự)' : 'Mật khẩu',
+                                  _isRegister
+                                      ? 'Mật khẩu (≥6 ký tự)'
+                                      : 'Mật khẩu',
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(

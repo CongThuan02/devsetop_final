@@ -150,7 +150,7 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: Column(
-                       spacing: 12,
+                      spacing: 12,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -249,9 +249,10 @@ class _VaultTileState extends State<_VaultTile> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final scheme = Theme.of(context).colorScheme;
-    final initial = item.serviceName.isEmpty
-        ? '?'
-        : item.serviceName.characters.first.toUpperCase();
+    final initial =
+        item.serviceName.isEmpty
+            ? '?'
+            : item.serviceName.characters.first.toUpperCase();
     return ExpansionTile(
       shape: const Border(),
       collapsedShape: const Border(),
@@ -354,7 +355,7 @@ class _Field extends StatelessWidget {
         children: [
           Expanded(
             child: Column(
-               spacing: 12,
+              spacing: 12,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: Theme.of(context).textTheme.labelSmall),
@@ -478,101 +479,108 @@ class _ItemFormScreenState extends ConsumerState<_ItemFormScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-             spacing: 12,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _service,
-                decoration: const InputDecoration(
-                  labelText: 'Tên dịch vụ *',
-                  prefixIcon: Icon(Icons.label_outline),
-                ),
-                validator: Validators.serviceName,
-              ),
-              TextFormField(
-                controller: _url,
-                keyboardType: TextInputType.url,
-                decoration: const InputDecoration(
-                  labelText: 'Địa chỉ web (tuỳ chọn)',
-                  prefixIcon: Icon(Icons.link),
-                  hintText: 'https://...',
-                ),
-                validator: Validators.optionalUrl,
-              ),
-              TextFormField(
-                controller: _username,
-                decoration: const InputDecoration(
-                  labelText: 'Tên đăng nhập / Thư điện tử *',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-                validator:
-                    (v) => Validators.required(v, label: 'Tên đăng nhập'),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _password,
-                      obscureText: _obscure,
-                      decoration: const InputDecoration(
-                        labelText: 'Mật khẩu *',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
-                      validator: Validators.vaultPassword,
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: _obscure ? 'Hiện' : 'Ẩn',
-                    icon: Icon(
-                      _obscure ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () => setState(() => _obscure = !_obscure),
-                  ),
-                  IconButton(
-                    tooltip: 'Tạo ngẫu nhiên',
-                    onPressed: _generate,
-                    icon: const Icon(Icons.casino),
-                  ),
-                ],
-              ),
-              TextFormField(
-                controller: _note,
-                maxLines: 3,
-                maxLength: 500,
-                decoration: const InputDecoration(
-                  labelText: 'Ghi chú (tuỳ chọn)',
-                  prefixIcon: Icon(Icons.notes),
-                ),
-                validator:
-                    (v) => Validators.maxLength(v, 500, label: 'Ghi chú'),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '* là trường bắt buộc',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _busy ? null : _save,
-                child:
-                    _busy
-                        ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : Text(
-                          _isEdit
-                              ? 'Cập nhật (mã hoá rồi tải lên máy chủ)'
-                              : 'Lưu (mã hoá rồi tải lên máy chủ)',
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    spacing: 12,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _service,
+                        decoration: const InputDecoration(
+                          labelText: 'Tên dịch vụ *',
+                          prefixIcon: Icon(Icons.label_outline),
                         ),
-              ),
-            ],
-          ),
-        ),
+                        validator: Validators.serviceName,
+                      ),
+                      TextFormField(
+                        controller: _url,
+                        keyboardType: TextInputType.url,
+                        decoration: const InputDecoration(
+                          labelText: 'Địa chỉ web (tuỳ chọn)',
+                          prefixIcon: Icon(Icons.link),
+                          hintText: 'https://...',
+                        ),
+                        validator: Validators.optionalUrl,
+                      ),
+                      TextFormField(
+                        controller: _username,
+                        decoration: const InputDecoration(
+                          labelText: 'Tên đăng nhập / Thư điện tử *',
+                          prefixIcon: Icon(Icons.person_outline),
+                        ),
+                        validator:
+                            (v) =>
+                                Validators.required(v, label: 'Tên đăng nhập'),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _password,
+                              obscureText: _obscure,
+                              decoration: const InputDecoration(
+                                labelText: 'Mật khẩu *',
+                                prefixIcon: Icon(Icons.lock_outline),
+                              ),
+                              validator: Validators.vaultPassword,
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: _obscure ? 'Hiện' : 'Ẩn',
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed:
+                                () => setState(() => _obscure = !_obscure),
+                          ),
+                          IconButton(
+                            tooltip: 'Tạo ngẫu nhiên',
+                            onPressed: _generate,
+                            icon: const Icon(Icons.casino),
+                          ),
+                        ],
+                      ),
+                      TextFormField(
+                        controller: _note,
+                        maxLines: 3,
+                        maxLength: 500,
+                        decoration: const InputDecoration(
+                          labelText: 'Ghi chú (tuỳ chọn)',
+                          prefixIcon: Icon(Icons.notes),
+                        ),
+                        validator:
+                            (v) =>
+                                Validators.maxLength(v, 500, label: 'Ghi chú'),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '* là trường bắt buộc',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: _busy ? null : _save,
+                        child:
+                            _busy
+                                ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : Text(
+                                  _isEdit
+                                      ? 'Cập nhật (mã hoá rồi tải lên máy chủ)'
+                                      : 'Lưu (mã hoá rồi tải lên máy chủ)',
+                                ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
