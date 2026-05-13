@@ -150,6 +150,7 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: Column(
+                       spacing: 12,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -353,6 +354,7 @@ class _Field extends StatelessWidget {
         children: [
           Expanded(
             child: Column(
+               spacing: 12,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: Theme.of(context).textTheme.labelSmall),
@@ -479,6 +481,7 @@ class _ItemFormScreenState extends ConsumerState<_ItemFormScreen> {
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
+             spacing: 12,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(

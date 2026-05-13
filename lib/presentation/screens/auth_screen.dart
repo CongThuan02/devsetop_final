@@ -113,6 +113,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       key: _formKey,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
+                        spacing: 12,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
